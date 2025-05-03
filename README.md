@@ -6,7 +6,9 @@ Contents of this repository are divided into `analysis`, which contains scripts 
 
 Local paths were replaced with a placeholder string for security measures.
 
-Data is provided as supplementary material to the manuscript, or deposited into repositories such as FigShare or Zenodo (accession numbers to be provided).
+Data is provided as supplementary material to the manuscript.
+
+FigShare record: [10.26188/27872490.v1](https://doi.org/10.26188/27872490.v1).
 
 If you have any questions on about the code or would like to request any data files, please open an issue or contact us through the "Corresponding Author" information on the manuscript.
 
