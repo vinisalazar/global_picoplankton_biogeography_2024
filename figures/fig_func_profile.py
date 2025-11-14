@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+"""
+Plot functional profile with sPLS data.
+"""
+
+
 import os
 import sys
 from collections import OrderedDict

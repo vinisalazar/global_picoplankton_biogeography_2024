@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+"""
+Plot sample connectivity (dissimilarity across space).
+"""
 
 
 import sys
@@ -26,7 +28,7 @@ plt.rcParams["text.usetex"] = True
 mpl.rc('text.latex', preamble=r'\usepackage{cmbright}')
 
 
-# In[2]:
+
 
 
 data_dir = "/local/path/to/provinces_final"
@@ -37,7 +39,7 @@ df = pd.read_csv(f"{data_dir}/../data/misc/sourmash.csv", index_col=0)
 df = df.loc[md.index, md.index]
 
 
-# In[3]:
+
 
 
 distances = df.copy()
@@ -49,14 +51,14 @@ distances["alpha"] = 1 - distances["distance"]
 
 # # Connectivity
 
-# In[4]:
+
 
 
 distances["alpha"].plot(kind="hist", bins=100)
 plt.xlim(0.0, 0.1)
 
 
-# In[5]:
+
 
 
 def qualitative_colormap(cmap_name, N):
@@ -65,7 +67,7 @@ def qualitative_colormap(cmap_name, N):
     return colors
 
 
-# In[9]:
+
 
 
 fig = plt.figure(figsize=(20, 10))
@@ -131,7 +133,7 @@ ax.set_title("Genomic connectivity between samples", fontsize=20)
 plt.savefig("/local/path/to/figures/final_draft_imgs/figS7_connectivity.svg", bbox_inches="tight")
 
 
-# In[ ]:
+
 
 
 

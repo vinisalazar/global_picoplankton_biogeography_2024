@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+"""
+Plot Pearson correlation between blocks of data.
+"""
+
 #### ADD LATEX RENDERING
 import os
 

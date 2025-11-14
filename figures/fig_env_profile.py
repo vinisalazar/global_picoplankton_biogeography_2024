@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 """
-TO-DO
-  - Add units for each env variable
-  - Add title to map Axes
+Plot environmental profile (color-coded PCA).
 """
 import os
 import re

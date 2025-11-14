@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+Plot cluster image map of taxonomy at genome-level.
+"""
+
 import os
 import sys
 

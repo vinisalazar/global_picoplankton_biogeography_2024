@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+"""
+Plot model RF classification model performance.
+"""
+
 
 
 import os
@@ -32,11 +35,8 @@ sys.path.insert(0, "/local/path/to/scripts/")
 from plotting_utils import palettes, split_on_capitals
 
 
-# ### Talk with Saritha
-# 
-# - Mean and std. dev. of confusion matrix from cross_validation
 
-# In[2]:
+
 
 
 env_cols = "Salinity Nitrate OceanTemperature DissolvedMolecularOxygen Silicate pH DissolvedIron Phosphate SeaIceCover Chlorophyll".split()
@@ -61,7 +61,7 @@ palette = {v["label"]: v["color"] for k, v in palettes["k_10"].items()}
 
 # ## Repeated Stratified *k*-fold with modified RF Classifier
 
-# In[3]:
+
 
 
 # Assuming you have your data in X and y
@@ -101,27 +101,27 @@ for i, (train_index, test_index) in enumerate(cv.split(X, y)):
     print(f"Fold {i}: Accuracy on the test set: {accuracy}")
 
 
-# In[4]:
+
 
 
 feature_importances = pd.DataFrame(feature_importances)
 feature_importances.columns = clf.feature_names_in_
 
 
-# In[5]:
+
 
 
 feature_importances_order = feature_importances.mean().sort_values(ascending=False).index
 
 
-# In[6]:
+
 
 
 corr = X.corr()
 corr = corr.loc[feature_importances_order, feature_importances_order]
 
 
-# In[7]:
+
 
 
 fig, axs = plt.subplots(2, 1, figsize=(10, 16))
@@ -141,7 +141,7 @@ plt.annotate("B", (0.05, 0.475), xycoords="figure fraction", weight="bold", size
 
 # ## Averaged confusion matrix
 
-# In[8]:
+
 
 
 confusion = np.mean(np.stack(confusion_matrices), axis=0)
@@ -151,7 +151,7 @@ confusion_std = np.std(np.stack(confusion_matrices), axis=0)
 confusion_std = pd.DataFrame(confusion_std, index=clf.classes_, columns=clf.classes_)
 
 
-# In[9]:
+
 
 
 # Function to create the annotation text with an optional diagonal parameter
@@ -190,7 +190,7 @@ outfile = f"{data_dir}/provinces_final/figures/final_draft_imgs/figS4_confusion_
 
 # ## OvR ROC curve – all provinces
 
-# In[10]:
+
 
 
 def plot_roc_curve(clf, X_train, y_train, X_test, y_test, classes, ax, binary_clf=False, set_ylabel=True, set_xlabel=True, title='Receiver Operating Characteristic (ROC) - Multiclass'):
@@ -240,7 +240,7 @@ def plot_roc_curve(clf, X_train, y_train, X_test, y_test, classes, ax, binary_cl
     ax.legend(loc="lower right")
 
 
-# In[28]:
+
 
 
 # Create a GridSpec with 2 rows and 2 columns
@@ -317,7 +317,7 @@ plt.annotate("\\textbf{B}", (0.62, 0.81), xycoords="figure fraction", weight="bo
 plt.savefig("/local/path/to/figures/final_draft_imgs/figS3_confusion_matrix_roc_curve.png", dpi=600, bbox_inches="tight")
 
 
-# In[12]:
+
 
 
 # Assuming you have your data in X (pandas DataFrame) and y
@@ -374,13 +374,13 @@ for i, (train_index, test_index) in enumerate(cv.split(X, y)):
 # After the loop, you can analyze feature importances for each class across folds using correct class labels and feature names
 
 
-# In[13]:
+
 
 
 class_feature_importances_dict = {class_: pd.DataFrame(pd.DataFrame(class_feature_importances).loc[:, class_].to_list()) for class_ in y.unique()}
 
 
-# In[14]:
+
 
 
 for class_, df in class_feature_importances_dict.items():
@@ -389,19 +389,19 @@ for class_, df in class_feature_importances_dict.items():
     ax.set_title(f"Feature importance for class {class_}")
 
 
-# In[95]:
+
 
 
 corr
 
 
-# In[97]:
+
 
 
 class_feature_importances_dict
 
 
-# In[101]:
+
 
 
 feature_importances.columns = [split_on_capitals(i) for i in feature_importances.columns]
@@ -412,13 +412,13 @@ for df_ in class_feature_importances_dict.values():
     df_.columns = [split_on_capitals(i) for i in df_.columns]
 
 
-# In[129]:
+
 
 
 df
 
 
-# In[131]:
+
 
 
 fig = plt.figure(figsize=(22.5, 20))
@@ -478,7 +478,7 @@ plt.savefig("/local/path/to/figures/final_draft_imgs/figS4_feature_importance_co
 # plt.savefig("/local/path/to/figures/final_draft_imgs/figS4_feature_importance_correlation.png", dpi=600, bbox_inches="tight")
 
 
-# In[ ]:
+
 
 
 

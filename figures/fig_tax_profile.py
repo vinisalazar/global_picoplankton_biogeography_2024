@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
-
-
-#!/usr/bin/env python
+"""
+Plot taxonomic profile.
+"""
 
 import os
 import sys
@@ -37,13 +36,8 @@ sys.path.insert(0, f"{wd}/scripts/")
 from plotting_utils import palettes
 
 
-# In[3]:
-
-
 smd = pd.read_csv(f"{wd}/provinces_final/data/metadata_1454_cluster_labels.csv", index_col=0, dtype={"sourmash_k_10_1487_25m": "object"})
 gmd = pd.read_csv(f"{wd}/provinces_final/data/genome_metadata.tsv", sep="\t", index_col=0)
-
-
 tables_clean = {
     "genomes": pd.read_csv(f"{wd}/provinces_final/data/counts/genomes_trimmed_mean_formatted_clean.csv", index_col=0),
     "genus": pd.read_csv(f"{wd}/provinces_final/data/counts/genus_trimmed_mean_formatted_clean.csv", index_col=0),
@@ -77,14 +71,7 @@ for rank_ in ranks[:-1]:
             parent = gmd.loc[genome, rank_] = f"{rank_[0]}__{genome}"
             tables_clean[rank_][f"{rank_[0]}__{genome}"] = tables_clean["genomes"][genome]
 
-
-# In[4]:
-
-
 tables_clean["domain"] = tables_clean["genomes"].T.join(gmd["domain"]).groupby("domain").sum().T
-
-
-# In[5]:
 
 
 def get_ordered_labels(df):
@@ -94,12 +81,10 @@ def get_ordered_labels(df):
     ordered_labels = dendro['ivl']
     return ordered_labels
 
+
 # Function to sort each category group based on the predefined order
 def sort_by_order(group, order):
     return group.loc[order]
-
-
-# In[6]:
 
 
 def get_rel_abun(df):
@@ -127,11 +112,9 @@ colormaps = {
 }
 
 tab20_colors = mpl.colormaps["tab20"].colors[::2] + mpl.colormaps["tab20"].colors[1::2]
-# tab20_colors = mpl.colormaps["tab20c"].colors[:16:4] + mpl.colormaps["tab20b"].colors[::4] + mpl.colormaps["tab20c"].colors[2:16:4] + mpl.colormaps["tab20b"].colors[2::4]
 colormaps = dict(zip(colormaps.keys(), tab20_colors))
 
 tab20_colors_bar = mpl.colormaps["tab20"].colors[::2] + mpl.colormaps["tab20"].colors[1::2]
-# tab20_colors_bar = mpl.colormaps["tab20c"].colors[1:16:4] + mpl.colormaps["tab20b"].colors[1::4] + mpl.colormaps["tab20c"].colors[3:16:4] + mpl.colormaps["tab20b"].colors[3::4]
 colormaps_bar = dict(zip(colormaps.keys(), tab20_colors_bar))
 
 
@@ -205,7 +188,7 @@ def get_colormap_colors(color, num_colors):
     return colors
 
 
-# In[7]:
+
 
 
 def create_pie_data(province="9", N=10, colormaps=colormaps, add_archaea=False, add_other_phyla=False, add_other_phyla_N=10):
@@ -261,7 +244,7 @@ def create_pie_data(province="9", N=10, colormaps=colormaps, add_archaea=False, 
     return pie_data
 
 
-# In[8]:
+
 
 
 # Phylum
@@ -283,15 +266,11 @@ stacked_bar_phylum = stacked_bar_phylum.groupby("sourmash_k_10_1487_25m", group_
 stacked_bar_phylum.columns = [i[3:] if i[1] == "_" else i for i in stacked_bar_phylum.columns]
 
 
-# # Old
-# colormap_phylum = mpl.colormaps['tab20']
-# colors_phylum = [colormap_phylum.colors[i] for i in range(len(stacked_bar_phylum.columns)-2)] + ["gray",]
-# colordict_phylum = dict(zip(stacked_bar_phylum.columns, colors_phylum))
 colordict_phylum = {k: colormaps_bar["p__" + k] for k in stacked_bar_phylum.columns[:-1] if k != "Others"}
 colordict_phylum["Others"] = "#9a9a9a"
 
 
-# In[9]:
+
 
 
 # Family
@@ -326,9 +305,7 @@ colordict_family = [
     ]
 
 # # Old
-# colormap_family = mpl.colormaps['tab20']
-# colors_family = [colormap_family.colors[i] for i in range(len(stacked_bar_family.columns)-2)] + ["gray",]
-# colordict_family = dict(zip(stacked_bar_family.columns, colors_family))
+
 colordict_family = {k: colormaps_bar[gmd.drop_duplicates("family").set_index("family").loc[f"f__{k}", "phylum"]] for k in stacked_bar_family.columns[:-1] if k != "Others"}
 colordict_family["Others"] = "#9a9a9a"
 for phylum, phylum_color in colordict_phylum.items():
@@ -339,7 +316,7 @@ for phylum, phylum_color in colordict_phylum.items():
             phylum_brightness += 0.15
 
 
-# In[10]:
+
 
 
 rename_families = gmd.drop_duplicates("family").set_index("family").loc[["f__" + i for i in stacked_bar_family.columns[:-2]]].iloc[[3, 6, 7, 8]]["order"].to_dict()
@@ -348,7 +325,7 @@ rename_families = {k: v.replace("\n", " ") if "D2472" in v else v for k, v in re
 stacked_bar_family = stacked_bar_family.rename(columns=rename_families)
 
 
-# In[11]:
+
 
 
 renamed_colordict_family = {rename_families[k]: v for k, v in colordict_family.items() if k in rename_families.keys()}
@@ -358,7 +335,7 @@ colordict_family = {k: v for k, v in colordict_family.items() if k in stacked_ba
 colordict_family["Others"] = "#9a9a9a"
 
 
-# In[12]:
+
 
 
 median_archaea = get_rel_abun(tables_clean["phylum"])[gmd[gmd["domain"] == "d__Archaea"]["phylum"].unique()].sum(axis=1).to_frame().merge(smd["sourmash_k_10_1487_25m"], left_index=True, right_index=True).groupby("sourmash_k_10_1487_25m").median().reset_index()
@@ -367,7 +344,7 @@ median_archaea["province_label"] = median_archaea["province"].astype(int).map({k
 median_archaea[median_archaea["archaea"] >= 0.02]["province"].unique()
 
 
-# In[13]:
+
 
 
 provinces_pie_data = dict()
@@ -380,13 +357,13 @@ for p in "14 16 10 2 3 7 5 11 9 0".split():
     provinces_pie_data[p] = create_pie_data(province=p, add_archaea=add_archaea, add_other_phyla=add_other_phyla, add_other_phyla_N=10)
 
 
-# In[ ]:
 
 
 
 
 
-# In[14]:
+
+
 
 
 def sunburst(pie_data, ax, size=0.15, radius=0.15, labeldistance=1, pctdistance=1, remove_labels=True, remove_pct=True, remove_all_labels=False, rotatelabels=False, format_lineage=False, genome_fontsize=8):
@@ -403,8 +380,6 @@ def sunburst(pie_data, ax, size=0.15, radius=0.15, labeldistance=1, pctdistance=
                            radius=radius,
                            labeldistance=0.1)
     rank_wedges = defaultdict(list)
-
-    # pie_data["taxa"] = pie_data.apply(lambda row: "" if row["taxa"][1] == "_" else row["taxa"], axis=1)
 
     for wedge, text, autotext in zip(wedges, texts, autotexts):
         theta1, theta2 = wedge.theta1, wedge.theta2
@@ -532,7 +507,7 @@ def sunburst(pie_data, ax, size=0.15, radius=0.15, labeldistance=1, pctdistance=
             artist_text.remove()
 
 
-# In[15]:
+
 
 
 def custom_join(lst, N=3, sep1="\n", sep2="; "):
@@ -548,25 +523,25 @@ def custom_join(lst, N=3, sep1="\n", sep2="; "):
     return result
 
 
-# In[16]:
+
 
 
 pd.set_option('display.max_rows', None)
 
 
-# In[ ]:
 
 
 
 
 
-# In[17]:
+
+
 
 
 provinces_pie_data["16"]
 
 
-# In[120]:
+
 
 
 # Define layout
@@ -678,121 +653,92 @@ for ax, province in zip(pie_charts, "14 10 2 3 7 0 16 5 11 9".split()):
     ax.spines["left"].set_color(color)
     ax.spines["right"].set_color(color)
 
-# fig.text(
-#     0.1025,
-#     0.88,
-#     "\\textbf{A}",
-#     fontsize=20,
-#     ha="left",
-#     va="center"
-# )
-# fig.text(
-#     0.1025,
-#     0.68,
-#     "\\textbf{B}",
-#     fontsize=20,
-#     ha="left",
-#     va="center"
-# )
-# fig.text(
-#     0.1025,
-#     0.48,
-#     "\\textbf{C}",
-#     fontsize=20,
-#     ha="left",
-#     va="center"
-# )
+
 
 plt.savefig("/local/path/to/figures/final_draft_imgs/fig3_tax_top_genomes_only.png", dpi=1200, bbox_inches="tight", transparent=True)
 
 
 # ### Cluster Image Map
 
-# In[113]:
+
 
 
 genome_labels = gmd.loc[cim.columns, [i for i in ranks if i != "genomes"]].apply(lambda row: "; ".join(list(dict.fromkeys([i[3:] if i[1] == "_" else i for i in row] + [row.name]))), axis=1)
 
 
-# In[114]:
+
 
 
 col_colors = smd.loc[cim.index]["sourmash_k_10_1487_25m"].astype(int).map({k: v["color"] for k, v in palettes["k_10"].items()}).rename("Province")
 
 
-# In[119]:
+
 
 
 cimplot = sns.clustermap(cim.T, method="average", cmap="Spectral_r", xticklabels=False, col_colors=col_colors, dendrogram_ratio=0.1, cbar_pos=None, figsize=(20, 20))
 
-# _ = cimplot.ax_col_dendrogram.annotate(
-#     "\\textbf{D}",
-#     xy=(-0.05, 0.5),
-#     xycoords="axes fraction",
-#     fontsize=20,
-# )
 
 _ = cimplot.ax_heatmap.set_yticklabels(genome_labels, rotation=0)
 
 # plt.savefig("./final_draft_imgs/fig3_tax_bottom.png", dpi=600, bbox_inches="tight", transparent=True)
 
 
-# In[22]:
+
 
 
 pd.set_option('display.max_rows', 100)
 ranks.pop()
 
 
-# In[23]:
+
 
 
 gmd.loc[tables_clean["genomes"].median().nlargest(100).index, ranks]
 
 
-# In[24]:
+
 
 
 gmd.drop_duplicates("genus").set_index("genus").loc[tables_clean["genus"].median().nlargest(20).index, [i for i in ranks if i != "genus"]]
 
 
-# In[25]:
+
 
 
 gmd.drop_duplicates("genus").set_index("genus").loc[tables_clean["genus"].median().nlargest(100).index, [i for i in ranks if i != "genus"]]
 
 
-# In[26]:
+
 
 
 (tables_clean["genus"] > 0).mean().sort_values(ascending=True).plot(kind="hist")
 
 
-# In[27]:
+
 
 
 (tables_clean["genomes"] > 0).mean().sort_values(ascending=True).plot(kind="hist")
 
 
-# In[28]:
+
 
 
 tables_clean["genomes"]["GCA_003662515"].describe()
 
 
-# In[29]:
+
 
 
 from skbio import diversity
 
 
-# In[ ]:
 
 
 
 
 
-# In[30]:
+
+
 
 
 metric = "simpson"
@@ -802,37 +748,37 @@ s.index = tables_clean[rank].index
 s.name = metric
 
 
-# In[31]:
+
 
 
 table = tables_clean[rank].join(s).join(smd["sourmash_k_10_1487_25m"].rename("province").astype(int).map({k: v["label"] for k, v in palettes["k_10"].items()}))
 
 
-# In[32]:
+
 
 
 table.groupby("province")[metric].describe()
 
 
-# In[33]:
+
 
 
 # Individual sunbursts
 
 
-# In[34]:
+
 
 
 ranks
 
 
-# In[35]:
+
 
 
 provinces_pie_data[province].query("rank == 'genomes'").set_index("taxa")
 
 
-# In[36]:
+
 
 
 # Test one instance
@@ -850,13 +796,13 @@ for province in "0 14 16 10 2 3 7 5 11 9".split():
     print()
 
 
-# In[37]:
+
 
 
 gmd.loc[provinces_pie_data["0"].query("rank == 'genomes'")["taxa"], ranks[:-1] + ["sci_names"]]
 
 
-# In[38]:
+
 
 
 fig, ax = plt.subplots(1, 1, figsize=(10, 10))
@@ -872,13 +818,13 @@ ax.set_title(palettes["k_10"][int("0")]["label"], bbox=dict(facecolor=palettes["
 # plt.savefig("./sunburst_aplr.svg", format="svg")
 
 
-# In[39]:
+
 
 
 get_ipython().system('ls ../drafts')
 
 
-# In[40]:
+
 
 
 # Test one instance
@@ -887,7 +833,7 @@ fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 sunburst(provinces_pie_data["0"], ax, remove_labels=True, remove_pct=False, pctdistance=0.8)
 
 
-# In[41]:
+
 
 
 # Test one instance
@@ -896,7 +842,7 @@ fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 sunburst(provinces_pie_data["7"], ax, remove_labels=True, remove_pct=False, pctdistance=0.8)
 
 
-# In[42]:
+
 
 
 # Test one instance
@@ -905,7 +851,7 @@ fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 sunburst(provinces_pie_data["10"], ax, remove_labels=True, remove_pct=False, pctdistance=0.8)
 
 
-# In[43]:
+
 
 
 # Test one instance
@@ -914,7 +860,7 @@ fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 sunburst(provinces_pie_data["5"], ax, remove_labels=True, remove_pct=False, pctdistance=0.8)
 
 
-# In[44]:
+
 
 
 # Test one instance
@@ -923,7 +869,7 @@ fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 sunburst(provinces_pie_data["7"], ax, remove_labels=True, remove_pct=False, pctdistance=0.8, format_lineage=lambda text_: custom_join(gmd.loc[text_, ranks[:-1]].map(lambda x: x[3:]).to_list() + [text_]))
 
 
-# In[45]:
+
 
 
 genome_number_labels = provinces_pie_data.copy()
@@ -931,13 +877,7 @@ genome_number_labels = provinces_pie_data.copy()
 for k, v in genome_number_labels.items():
     genome_number_labels[k] = v[v["rank"] == "genomes"].drop_duplicates().sort_values("taxa").reset_index(drop=True).reset_index().set_index("taxa")
 
-# genome_number_labels = pd.concat(genome_number_labels.values())
-# genome_number_labels = pd.concat)
-# genome_number_labels = genome_number_labels[genome_number_labels["rank"] == "genomes"].drop_duplicates("taxa")
-# genome_number_labels.reset_index(drop=True).reset_index().set_index("taxa")
 
-
-# In[46]:
 
 
 # Test one instance
@@ -947,7 +887,7 @@ fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 sunburst(provinces_pie_data["9"], ax, remove_labels=False, remove_pct=True, pctdistance=0.8, format_lineage=False, rotatelabels=True)
 
 
-# In[47]:
+
 
 
 # Test one instance
@@ -957,7 +897,7 @@ fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 sunburst(provinces_pie_data["11"], ax, remove_labels=False, remove_pct=True, pctdistance=0.8, format_lineage=False, rotatelabels=True)
 
 
-# In[48]:
+
 
 
 # Test one instance
@@ -971,13 +911,12 @@ sunburst(provinces_pie_data["5"], ax, remove_labels=False, remove_pct=True, pctd
 
 # ### *Synechococcus*
 
-# In[74]:
 
 
-data_.rename_axis("Sample")
 
 
-# In[84]:
+
+
 
 
 data_ = get_rel_abun(tables_clean["genomes"][gmd[(gmd["genus"].str.contains("Synechococcus")) |
@@ -992,41 +931,27 @@ plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_synechococcus.sv
 
 # ### *Prochlorococcus*
 
-# In[76]:
 
 
-# data_ = get_rel_abun(tables_clean["genomes"][gmd[(gmd["genus"].str.contains("Prochlorococcus"))].index]).join(
-#                                              smd["sourmash_k_10_1487_25m"].astype(int).map(
-#                                                  {k: v["label"] for k, v in palettes["k_10"].items()}).rename("province"))
-# data_ = data_.rename(columns=gmd.loc[data_.columns[:-1], "sci_names"].to_dict())
-# sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(10,20), vmax=0.2, xticklabels=False)
 
 
-# In[89]:
+
 
 
 data_ = get_rel_abun(tables_clean["genus"][gmd[(gmd["genus"].str.contains("Prochlorococcus"))]["genus"].unique()]).join(
                                              smd["sourmash_k_10_1487_25m"].astype(int).map(
                                                  {k: v["label"] for k, v in palettes["k_10"].items()}).rename("province")).rename_axis("Sample")
-# data_["province"] = pd.Categorical(data_["province"], categories="APLR BPLR BALT UPWL SSTC NADR TMED TCON PEQD TROP".split(), ordered=True)
 data_ = data_.sort_values("province")
-# data_ = data_.rename(columns=gmd.loc[data_.columns[:-1], "sci_names"].to_dict())
-# sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(10,5), col_cluster=False, xticklabels=False)
 sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(7.5,5), xticklabels=False, vmin=0, vmax=0.6, cbar_pos=None)
 plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_prochlorococcus_genus.svg", bbox_inches="tight")
 
 
-# In[90]:
 
 
-# data_ = get_rel_abun(tables_clean["genomes"][gmd[(gmd["genus"].str.contains("Prochlorococcus_A"))].index]).join(
-#                                              smd["sourmash_k_10_1487_25m"].astype(int).map(
-#                                                  {k: v["label"] for k, v in palettes["k_10"].items()}).rename("province"))
-# data_ = data_.rename(columns=gmd.loc[data_.columns[:-1], "sci_names"].to_dict())
-# sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(10,30), vmax=0.2, yticklabels=True)
 
 
-# In[91]:
+
+
 
 
 data_ = get_rel_abun(tables_clean["genomes"][gmd[(gmd["genus"].str.contains("Prochlorococcus_A"))].index])
@@ -1036,13 +961,12 @@ rename_dict = {k: v + f"; {k}" for k, v in rename_dict.items()}
 data_ = data_.rename(columns=rename_dict).join(
                                              smd["sourmash_k_10_1487_25m"].astype(int).map(
                                                  {k: v["label"] for k, v in palettes["k_10"].items()}).rename("province")).rename_axis("Sample")
-# data_["province"] = pd.Categorical(data_["province"], categories="APLR BPLR BALT UPWL SSTC NADR TMED TCON PEQD TROP".split(), ordered=True)
 data_ = data_.sort_values("province")
 sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(10,5), yticklabels=True, xticklabels=False, vmin=0, vmax=0.6, cbar_pos=None)
 plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_prochlorococcus_A_genome.svg", bbox_inches="tight")
 
 
-# In[92]:
+
 
 
 data_ = get_rel_abun(tables_clean["genomes"][gmd[(gmd["genus"].str.contains("Prochlorococcus"))].index])
@@ -1052,7 +976,6 @@ rename_dict = {k: v + f"; {k}" for k, v in rename_dict.items()}
 data_ = data_.rename(columns=rename_dict).join(
                                              smd["sourmash_k_10_1487_25m"].astype(int).map(
                                                  {k: v["label"] for k, v in palettes["k_10"].items()}).rename("province")).rename_axis("Sample")
-# data_["province"] = pd.Categorical(data_["province"], categories="APLR BPLR BALT UPWL SSTC NADR TMED TCON PEQD TROP".split(), ordered=True)
 data_ = data_.sort_values("province")
 sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(10,5), yticklabels=True, xticklabels=False, vmin=0, vmax=0.6, cbar_pos=None)
 plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_prochlorococcus_genome.svg", bbox_inches="tight")
@@ -1060,7 +983,7 @@ plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_prochlorococcus_
 
 # ### *Pelagibacter*
 
-# In[101]:
+
 
 
 data_ = get_rel_abun(tables_clean["genomes"])[gmd[(gmd["family"].str.contains("Pelagibacteraceae"))].index]
@@ -1070,7 +993,6 @@ rename_dict = {k: v + f"; {k}" for k, v in rename_dict.items()}
 data_ = data_.rename(columns=rename_dict).join(
                                              smd["sourmash_k_10_1487_25m"].astype(int).map(
                                                  {k: v["label"] for k, v in palettes["k_10"].items()}).rename("province")).rename_axis("Sample")
-# data_["province"] = pd.Categorical(data_["province"], categories="APLR BPLR BALT UPWL SSTC NADR TMED TCON PEQD TROP".split(), ordered=True)
 data_ = data_.sort_values("province")
 sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(10,5), yticklabels=True, xticklabels=False, vmin=0, vmax=0.3)
 plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_pelagibacter.eps", bbox_inches="tight")
@@ -1078,7 +1000,7 @@ plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_pelagibacter.eps
 
 # ### SAR86
 
-# In[94]:
+
 
 
 data_ = get_rel_abun(tables_clean["genomes"][gmd[(gmd["family"].str.contains("SAR86"))].index])
@@ -1088,13 +1010,12 @@ rename_dict = {k: v + f"; {k}" for k, v in rename_dict.items()}
 data_ = data_.rename(columns=rename_dict).join(
                                              smd["sourmash_k_10_1487_25m"].astype(int).map(
                                                  {k: v["label"] for k, v in palettes["k_10"].items()}).rename("province")).rename_axis("Sample")
-# data_["province"] = pd.Categorical(data_["province"], categories="APLR BPLR BALT UPWL SSTC NADR TMED TCON PEQD TROP".split(), ordered=True)
 data_ = data_.sort_values("province")
 sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(10,5), yticklabels=True, xticklabels=False, vmin=0, vmax=0.6, cbar_pos=None)
 plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_sar86.svg", bbox_inches="tight")
 
 
-# In[96]:
+
 
 
 data_ = get_rel_abun(tables_clean["genomes"][gmd[(gmd["family"].str.contains("HIMB59"))].index])
@@ -1104,13 +1025,12 @@ rename_dict = {k: v + f"; {k}" for k, v in rename_dict.items()}
 data_ = data_.rename(columns=rename_dict).join(
                                              smd["sourmash_k_10_1487_25m"].astype(int).map(
                                                  {k: v["label"] for k, v in palettes["k_10"].items()}).rename("province")).rename_axis("Sample")
-# data_["province"] = pd.Categorical(data_["province"], categories="APLR BPLR BALT UPWL SSTC NADR TMED TCON PEQD TROP".split(), ordered=True)
 data_ = data_.sort_values("province")
 sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(10,7.5), yticklabels=True, xticklabels=False, vmin=0, vmax=0.6, cbar_pos=None)
 plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_himb59.svg", bbox_inches="tight")
 
 
-# In[ ]:
+
 
 
 
@@ -1120,7 +1040,7 @@ plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_himb59.svg", bbo
 
 # ### *Synechococcus*
 
-# In[102]:
+
 
 
 data_ = get_rel_abun(tables_clean["genomes"][gmd[(gmd["genus"].str.contains("Synechococcus")) |
@@ -1135,41 +1055,21 @@ plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_synechococcus.pn
 
 # ### *Prochlorococcus*
 
-# In[103]:
 
 
-# data_ = get_rel_abun(tables_clean["genomes"][gmd[(gmd["genus"].str.contains("Prochlorococcus"))].index]).join(
-#                                              smd["sourmash_k_10_1487_25m"].astype(int).map(
-#                                                  {k: v["label"] for k, v in palettes["k_10"].items()}).rename("province"))
-# data_ = data_.rename(columns=gmd.loc[data_.columns[:-1], "sci_names"].to_dict())
-# sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(10,20), vmax=0.2, xticklabels=False)
 
-
-# In[104]:
 
 
 data_ = get_rel_abun(tables_clean["genus"][gmd[(gmd["genus"].str.contains("Prochlorococcus"))]["genus"].unique()]).join(
                                              smd["sourmash_k_10_1487_25m"].astype(int).map(
                                                  {k: v["label"] for k, v in palettes["k_10"].items()}).rename("province")).rename_axis("Sample")
-# data_["province"] = pd.Categorical(data_["province"], categories="APLR BPLR BALT UPWL SSTC NADR TMED TCON PEQD TROP".split(), ordered=True)
 data_ = data_.sort_values("province")
-# data_ = data_.rename(columns=gmd.loc[data_.columns[:-1], "sci_names"].to_dict())
-# sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(10,5), col_cluster=False, xticklabels=False)
 sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(7.5,5), xticklabels=False, vmin=0, vmax=0.6, cbar_pos=None)
 plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_prochlorococcus_genus.png", dpi=600, bbox_inches="tight")
 
 
-# In[105]:
 
 
-# data_ = get_rel_abun(tables_clean["genomes"][gmd[(gmd["genus"].str.contains("Prochlorococcus_A"))].index]).join(
-#                                              smd["sourmash_k_10_1487_25m"].astype(int).map(
-#                                                  {k: v["label"] for k, v in palettes["k_10"].items()}).rename("province"))
-# data_ = data_.rename(columns=gmd.loc[data_.columns[:-1], "sci_names"].to_dict())
-# sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(10,30), vmax=0.2, yticklabels=True)
-
-
-# In[106]:
 
 
 data_ = get_rel_abun(tables_clean["genomes"][gmd[(gmd["genus"].str.contains("Prochlorococcus_A"))].index])
@@ -1179,13 +1079,12 @@ rename_dict = {k: v + f"; {k}" for k, v in rename_dict.items()}
 data_ = data_.rename(columns=rename_dict).join(
                                              smd["sourmash_k_10_1487_25m"].astype(int).map(
                                                  {k: v["label"] for k, v in palettes["k_10"].items()}).rename("province")).rename_axis("Sample")
-# data_["province"] = pd.Categorical(data_["province"], categories="APLR BPLR BALT UPWL SSTC NADR TMED TCON PEQD TROP".split(), ordered=True)
 data_ = data_.sort_values("province")
 sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(10,5), yticklabels=True, xticklabels=False, vmin=0, vmax=0.6, cbar_pos=None)
 plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_prochlorococcus_A_genome.png", dpi=600, bbox_inches="tight")
 
 
-# In[107]:
+
 
 
 data_ = get_rel_abun(tables_clean["genomes"][gmd[(gmd["genus"].str.contains("Prochlorococcus"))].index])
@@ -1195,7 +1094,6 @@ rename_dict = {k: v + f"; {k}" for k, v in rename_dict.items()}
 data_ = data_.rename(columns=rename_dict).join(
                                              smd["sourmash_k_10_1487_25m"].astype(int).map(
                                                  {k: v["label"] for k, v in palettes["k_10"].items()}).rename("province")).rename_axis("Sample")
-# data_["province"] = pd.Categorical(data_["province"], categories="APLR BPLR BALT UPWL SSTC NADR TMED TCON PEQD TROP".split(), ordered=True)
 data_ = data_.sort_values("province")
 sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(10,5), yticklabels=True, xticklabels=False, vmin=0, vmax=0.6, cbar_pos=None)
 plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_prochlorococcus_genome.png", dpi=600, bbox_inches="tight")
@@ -1203,7 +1101,7 @@ plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_prochlorococcus_
 
 # ### *Pelagibacter*
 
-# In[108]:
+
 
 
 data_ = get_rel_abun(tables_clean["genomes"])[gmd[(gmd["family"].str.contains("Pelagibacteraceae"))].index]
@@ -1213,7 +1111,6 @@ rename_dict = {k: v + f"; {k}" for k, v in rename_dict.items()}
 data_ = data_.rename(columns=rename_dict).join(
                                              smd["sourmash_k_10_1487_25m"].astype(int).map(
                                                  {k: v["label"] for k, v in palettes["k_10"].items()}).rename("province")).rename_axis("Sample")
-# data_["province"] = pd.Categorical(data_["province"], categories="APLR BPLR BALT UPWL SSTC NADR TMED TCON PEQD TROP".split(), ordered=True)
 data_ = data_.sort_values("province")
 sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(10,5), yticklabels=True, xticklabels=False, vmin=0, vmax=0.3)
 plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_pelagibacter.png", dpi=600, bbox_inches="tight")
@@ -1221,7 +1118,7 @@ plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_pelagibacter.png
 
 # ### SAR86
 
-# In[109]:
+
 
 
 data_ = get_rel_abun(tables_clean["genomes"][gmd[(gmd["family"].str.contains("SAR86"))].index])
@@ -1231,13 +1128,12 @@ rename_dict = {k: v + f"; {k}" for k, v in rename_dict.items()}
 data_ = data_.rename(columns=rename_dict).join(
                                              smd["sourmash_k_10_1487_25m"].astype(int).map(
                                                  {k: v["label"] for k, v in palettes["k_10"].items()}).rename("province")).rename_axis("Sample")
-# data_["province"] = pd.Categorical(data_["province"], categories="APLR BPLR BALT UPWL SSTC NADR TMED TCON PEQD TROP".split(), ordered=True)
 data_ = data_.sort_values("province")
 sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(10,5), yticklabels=True, xticklabels=False, vmin=0, vmax=0.6, cbar_pos=None)
 plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_sar86.png", dpi=600, bbox_inches="tight")
 
 
-# In[111]:
+
 
 
 data_ = get_rel_abun(tables_clean["genomes"][gmd[(gmd["family"].str.contains("HIMB59"))].index])
@@ -1247,13 +1143,12 @@ rename_dict = {k: v + f"; {k}" for k, v in rename_dict.items()}
 data_ = data_.rename(columns=rename_dict).join(
                                              smd["sourmash_k_10_1487_25m"].astype(int).map(
                                                  {k: v["label"] for k, v in palettes["k_10"].items()}).rename("province")).rename_axis("Sample")
-# data_["province"] = pd.Categorical(data_["province"], categories="APLR BPLR BALT UPWL SSTC NADR TMED TCON PEQD TROP".split(), ordered=True)
 data_ = data_.sort_values("province")
 sns.clustermap(data_.iloc[:, :-1].T, col_colors=col_colors.loc[data_.index], cmap="Spectral_r", figsize=(10,7.5), yticklabels=True, xticklabels=False, vmin=0, vmax=0.6)
 plt.savefig("/local/path/to/figures/final_draft_imgs/clustermap_himb59.png", dpi=600, bbox_inches="tight")
 
 
-# In[ ]:
+
 
 
 

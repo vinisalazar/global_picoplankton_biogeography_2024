@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+Plot province area projections.
+"""
+
 import os
 import re
 import sys
