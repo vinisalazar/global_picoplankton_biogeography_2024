@@ -1,6 +1,6 @@
 ### Global Picoplankton Biogeography project
 
-Accompanying code for Salazar et al. manuscript.
+Accompanying code for [Salazar et al. manuscript](https://www.biorxiv.org/content/10.1101/2024.11.23.624595v1).
 
 Contents of this repository are divided into `analysis`, which contains scripts for data processing, and `figures`, which are scripts for generating figures.
 
