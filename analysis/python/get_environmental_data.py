@@ -27,7 +27,7 @@ def initialize_erddap(dataset_id, constraints):
     e = ERDDAP(server="https://erddap.bio-oracle.org/erddap/", protocol="griddap")
     e.dataset_id = dataset_id
     e.griddap_initialize()
-    
+
     constraints = {**e._constraints_original, **constraints}
     for k, v in constraints.items():
         for d in e._constraints_original, e.constraints:
@@ -47,8 +47,14 @@ def main(args):
     Returns:
         None
     """
-    log_file = args.log_file or f"get_env_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", filename=log_file)
+    log_file = (
+        args.log_file or f"get_env_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    )
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        filename=log_file,
+    )
     console_handler = logging.StreamHandler()  # For logging to console
     console_handler.setLevel(logging.INFO)
     logging.getLogger().addHandler(console_handler)
@@ -62,7 +68,7 @@ def main(args):
         "latitude_step": 1,
         "longitude>=": df["longitude"].describe().loc["min"],
         "longitude<=": df["longitude"].describe().loc["max"],
-        "longitude_step": 1
+        "longitude_step": 1,
     }
     logging.info("Preprocessed input data.")
 
@@ -91,8 +97,18 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process data.")
-    parser.add_argument("-i", "--input_table", type=Path, help="Path to input table file.")
-    parser.add_argument("-o", "--output_dir", type=Path, help="Path to output directory.")
-    parser.add_argument("-l", "--log_file", type=Path, default=None, help="Path to log file. Defaults to ''output_<timestamp>.log'.")
+    parser.add_argument(
+        "-i", "--input_table", type=Path, help="Path to input table file."
+    )
+    parser.add_argument(
+        "-o", "--output_dir", type=Path, help="Path to output directory."
+    )
+    parser.add_argument(
+        "-l",
+        "--log_file",
+        type=Path,
+        default=None,
+        help="Path to log file. Defaults to ''output_<timestamp>.log'.",
+    )
     args = parser.parse_args()
     main(args)

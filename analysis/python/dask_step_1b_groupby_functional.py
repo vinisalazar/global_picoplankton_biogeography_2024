@@ -105,26 +105,26 @@ def f(filenames, fun, outdir, force=False):
     results = dict()
     outdir = Path(outdir)
     metrics = [
-    #    "Mean",
+        #    "Mean",
         "Trimmed Mean",
-    #    "Variance",
-    #    "Read Count",
-    #    "Reads per base",
-    #    "RPKM",
-    #    "TPM",
+        #    "Variance",
+        #    "Read Count",
+        #    "Reads per base",
+        #    "RPKM",
+        #    "TPM",
     ]
     comma_columns = [
-    #    "GOs",
+        #    "GOs",
         "KEGG_Pathway",
         "KEGG_Reaction",
         "BRITE",
-    #    "PFAMs",
-    #    "EC",
+        #    "PFAMs",
+        #    "EC",
         "KEGG_ko",
         "KEGG_rclass",
     ]
     single_value_cols = [
-    #    "max_annot_lvl",
+        #    "max_annot_lvl",
         # "Preferred_name",
         # "EC",
         "KEGG_ko",

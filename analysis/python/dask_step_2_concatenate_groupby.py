@@ -28,7 +28,9 @@ def main(input_dir, outdir, mode="tax"):
     elif mode == "func":
         ranks = "BRITE COG_category Description EC GOs KEGG_Reaction KEGG_rclass KEGG_ko KEGG_Pathway max_annot_level PFAMs Preferred_name".split()
         ranks = "BRITE COG_category Description EC KEGG_Reaction KEGG_rclass KEGG_ko KEGG_Pathway max_annot_level Preferred_name".split()
-        ranks = "BRITE KEGG_Reaction KEGG_rclass KEGG_ko KEGG_Pathway COG_category".split()
+        ranks = (
+            "BRITE KEGG_Reaction KEGG_rclass KEGG_ko KEGG_Pathway COG_category".split()
+        )
     else:
         raise ValueError(
             f"Mode '{mode}' not recognized. Must be either 'tax' or 'func'."
