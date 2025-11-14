@@ -42,6 +42,7 @@ import xarray as xr
 
 sys.path.insert(0, "/local/path/to/scripts/")
 from utils import print_with_timestamp
+
 sys.path.insert(0, "/local/path/to/scripts/")
 from plotting_utils import palettes
 
@@ -49,10 +50,12 @@ os.environ["PATH"] = (
     os.environ["PATH"]
     + ":/apps/easybuild-2022/easybuild/software/Compiler/GCC/11.3.0/texlive/20230313/bin/x86_64-linux/"
 )
-os.environ['CARTOPY_USER_BACKGROUNDS'] = '/data/gpfs/projects/punim1989/biogo-hub/data/misc/NaturalEarth'
+os.environ["CARTOPY_USER_BACKGROUNDS"] = (
+    "/data/gpfs/projects/punim1989/biogo-hub/data/misc/NaturalEarth"
+)
 plt.rcParams["font.family"] = "sans-serif"
 plt.rcParams["text.usetex"] = True
-mpl.rc('text.latex', preamble=r'\usepackage{cmbright}')
+mpl.rc("text.latex", preamble=r"\usepackage{cmbright}")
 PIL.Image.MAX_IMAGE_PIXELS = 233280001
 
 get_k = lambda s: s.split("_k_")[-1].split("_")[0]
@@ -127,7 +130,7 @@ def plot_models(
     add_gridlines=False,
     markersize_sample=10,
     color_dict={v["label"]: v for k, v in palettes["k_10"].items()},
-    currents=False
+    currents=False,
 ):
     # Set projection
     projection_plate_carree = ccrs.PlateCarree()
@@ -144,7 +147,7 @@ def plot_models(
         height_ratios=[0.3, 1],
         width_ratios=[1, 0.3],
         bottom=0.2,
-        top=0.8
+        top=0.8,
     )
 
     # Define subplots
@@ -153,9 +156,7 @@ def plot_models(
     ax3 = fig.add_subplot(gs[-1:, :], projection=projection)  # Bottom subplot
 
     # ax1 - Dendrogram
-    Z_prime = np.fromfile(
-        "/local/path/to/data/clustering/z_collapsed_dend_k10.csv"
-    )
+    Z_prime = np.fromfile("/local/path/to/data/clustering/z_collapsed_dend_k10.csv")
     Z_prime = Z_prime.reshape(1453, 4)
 
     pmetadata_sorted = {str(k): v for k, v in color_dict.items()}
@@ -178,7 +179,10 @@ def plot_models(
     except KeyError:
         breakpoint()
     ax1.set_ylim(0.97, 1)
-    ax1.tick_params(axis='y', labelsize=30, )
+    ax1.tick_params(
+        axis="y",
+        labelsize=30,
+    )
 
     # ------------------------------
     # ax3 - Atlas
@@ -186,8 +190,14 @@ def plot_models(
     # ax3.set_title(model_name + f" - {round(accuracy, 3)} accuracy", fontsize=20, fontweight="bold")
     ax3.set_global()
     # ax3.add_feature(cfeature.LAND, color="lightgray")
-    ax3.add_feature(cfeature.NaturalEarthFeature("physical", "land", "10m"),
-            ec="black", lw=1.2, alpha=1, color="#EFEFDB", zorder=2)
+    ax3.add_feature(
+        cfeature.NaturalEarthFeature("physical", "land", "10m"),
+        ec="black",
+        lw=1.2,
+        alpha=1,
+        color="#EFEFDB",
+        zorder=2,
+    )
     ax3.add_feature(cfeature.LAKES, ec="black", lw=1.2, zorder=2)
     ax3.add_feature(cfeature.RIVERS, zorder=2)
     ax3.coastlines(resolution="10m", lw=1.2, zorder=2)
@@ -201,15 +211,16 @@ def plot_models(
         model_data = model_data.reset_index()
 
     print_with_timestamp(f"Plotting '{model_name}'.")
-    ax3.scatter(model_data["longitude"],
-                model_data["latitude"],
-                marker="o",
-                s=markersize,
-                color=model_data["color"],
-                alpha=model_data["alpha"],
-                rasterized=True,
-                zorder=0,
-                )
+    ax3.scatter(
+        model_data["longitude"],
+        model_data["latitude"],
+        marker="o",
+        s=markersize,
+        color=model_data["color"],
+        alpha=model_data["alpha"],
+        rasterized=True,
+        zorder=0,
+    )
 
     # Add sample dots
     sample_metadata[color_category] = sample_metadata[col_name]
@@ -256,7 +267,7 @@ def plot_models(
             color=color,
             markeredgecolor="k",
             markeredgewidth=1.5,
-            linestyle="None"
+            linestyle="None",
         )
         for label, color in color_dict_leg.items()
     }
@@ -271,7 +282,6 @@ def plot_models(
             for k, v in sorted(patches.items())
         }
 
-
     # Add gridlines
     if add_gridlines:
         gl = ax3.gridlines(
@@ -283,7 +293,7 @@ def plot_models(
             ylabel_style={"size": 30, "color": "black", "weight": "bold"},
             xlabel_style={"size": 30, "color": "black", "weight": "bold"},
             auto_inline=True,
-            ylocs = [-60, -40, -23.5, 0, 23.5, 40, 60],
+            ylocs=[-60, -40, -23.5, 0, 23.5, 40, 60],
             zorder=1,
         )
         gl.xlines = False
@@ -296,9 +306,7 @@ def plot_models(
 
     if currents:
         print_with_timestamp("Loading and plotting currents.")
-        currents = gpd.read_file(
-            "/local/path/to/data/misc/ocean_currents.geojson"
-        )
+        currents = gpd.read_file("/local/path/to/data/misc/ocean_currents.geojson")
         currents.plot(
             ax=ax3,
             transform=projection_plate_carree,
@@ -309,16 +317,28 @@ def plot_models(
             zorder=1,
         )
 
-
     # ------------------------------
     # ax2 - Legend
     # ------------------------------
     print_with_timestamp("Plotting legend.")
     ax2.axis("off")
     # Specified order list
-    order_list = ["B14", "B16", "B10", "B2", "B3", "B7", "B5", "B11" , "B9", "B0"]
-    order_list = ["BPLR", "BALT", "CTEM", "OTEM", "STEM", "MTEM", "TGYR", "TRLO" , "TRHI", "APLR"]
-    sorted_keys = sorted(patches.keys(), key=lambda x: order_list.index(x.split(" ")[0]))
+    order_list = ["B14", "B16", "B10", "B2", "B3", "B7", "B5", "B11", "B9", "B0"]
+    order_list = [
+        "BPLR",
+        "BALT",
+        "CTEM",
+        "OTEM",
+        "STEM",
+        "MTEM",
+        "TGYR",
+        "TRLO",
+        "TRHI",
+        "APLR",
+    ]
+    sorted_keys = sorted(
+        patches.keys(), key=lambda x: order_list.index(x.split(" ")[0])
+    )
 
     # Create an OrderedDict with the sorted keys and corresponding values
     reordered_patches = OrderedDict((key, patches[key]) for key in sorted_keys)
@@ -377,12 +397,16 @@ def get_model_accuracy(
         X, y, test_size=test_size, random_state=random_state, stratify=y
     )
     clf = RandomForestClassifier(n_estimators=100, random_state=random_state)
-    clf.fit(scaler.fit_transform(X_train), y_train) if scale else clf.fit(
-        X_train, y_train
+    (
+        clf.fit(scaler.fit_transform(X_train), y_train)
+        if scale
+        else clf.fit(X_train, y_train)
     )
     y_pred = clf.predict(scaler.fit_transform(X_test)) if scale else clf.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
-    confusion = pd.DataFrame(confusion_matrix(y_test, y_pred), index=clf.classes_, columns=clf.classes_)
+    confusion = pd.DataFrame(
+        confusion_matrix(y_test, y_pred), index=clf.classes_, columns=clf.classes_
+    )
     report = classification_report(y_test, y_pred)
     print_with_timestamp(f"Model: {model_name}")
     print_with_timestamp(f"Accuracy: {accuracy}")
@@ -417,7 +441,7 @@ def main(args):
         args.env_data_glob_string,
         args.test_size,
         args.markersize_sample,
-        args.currents
+        args.currents,
     )
     scaled_str = "scaled" if scaled else "not_scaled"
     scaler = StandardScaler()
@@ -443,7 +467,15 @@ def main(args):
     X = smd.drop_duplicates("coords")[env_cols]
     y = smd.drop_duplicates("coords")[column]
     try:
-        model_report = get_model_accuracy(X, y, column, scale=scaled, scaler=scaler, test_size=test_size, random_state=random_state)
+        model_report = get_model_accuracy(
+            X,
+            y,
+            column,
+            scale=scaled,
+            scaler=scaler,
+            test_size=test_size,
+            random_state=random_state,
+        )
     except:
         print_with_timestamp(f"Failed to fit model '{column}'.")
         raise
@@ -452,9 +484,7 @@ def main(args):
     )
     model_name = f"{model_time}{column}_{scaled_str}_{N}_points"
     model_file = f"/local/path/to/data/models/model_data/{model_name}.joblib"
-    X_test_file = (
-        f"/local/path/to/data/models/model_data/{model_name}_X_test.csv"
-    )
+    X_test_file = f"/local/path/to/data/models/model_data/{model_name}_X_test.csv"
     y_hat_file = f"/local/path/to/data/models/model_data/{model_name}_y_hat.csv"
     if (
         not all([Path(file).exists() for file in [model_file, X_test_file, y_hat_file]])
@@ -472,16 +502,25 @@ def main(args):
             if scaled
             else X_test
         )
-        clf.fit(
-            pd.DataFrame(scaler.fit_transform(X), index=X.index, columns=X.columns), y
-        ) if scaled else clf.fit(X, y)
+        (
+            clf.fit(
+                pd.DataFrame(scaler.fit_transform(X), index=X.index, columns=X.columns),
+                y,
+            )
+            if scaled
+            else clf.fit(X, y)
+        )
         y_hat = clf.predict(X_test)
         y_hat = pd.DataFrame(y_hat, index=X_test.index, columns=["province"])
         X_test[clf.classes_] = clf.predict_proba(X_test)
         X_test["province"] = y_hat
-        X_test["color"] = X_test["province"].map({v["label"]: v["color"] for k, v in palettes["k_10"].items()})
+        X_test["color"] = X_test["province"].map(
+            {v["label"]: v["color"] for k, v in palettes["k_10"].items()}
+        )
         X_test.columns = [str(i) for i in X_test.columns]
-        X_test["alpha"] = X_test.apply(lambda row: row[str(row["province"])] ** 2, axis=1)
+        X_test["alpha"] = X_test.apply(
+            lambda row: row[str(row["province"])] ** 2, axis=1
+        )
 
         # Save the model to disk
         X_test.to_csv(X_test_file)
@@ -518,7 +557,7 @@ def main(args):
         accuracy=model_report["accuracy"],
         add_gridlines=args.gridlines,
         markersize_sample=markersize_sample,
-        currents=currents
+        currents=currents,
     )
     print_with_timestamp("All done.")
 

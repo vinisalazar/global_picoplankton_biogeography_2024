@@ -19,6 +19,7 @@ plt.rcParams["text.usetex"] = True
 
 #### OTHER IMPORTS
 import sys
+
 sys.path.insert(0, "/local/path/to/scripts/")
 from utils import print_with_timestamp
 import warnings
@@ -40,6 +41,7 @@ from scipy.stats import spearmanr
 
 # # Run this if necessary
 # !python ./hub_provinces/scripts/create_distance_matrices.py
+
 
 def distribution_plot(df, columns, plot_type=sns.boxenplot, **kwargs):
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -228,6 +230,7 @@ def create_pairplot(
     else:
         plt.show()
 
+
 df = pd.read_csv(
     "/data/gpfs/projects/punim1989/biogo-hub/provinces_final/data/distances/merged_distances_2132_filtered_zeros.csv",
 )
@@ -305,6 +308,8 @@ combinations_ = [
     ("KEGG_Pathway", "KEGG_Reaction"),
     ("searoute", "env"),
 ]
+
+
 def main():
     scatter_kws = {
         "color": "darkgray",
@@ -356,7 +361,7 @@ def main():
         nrows=6,
         add_diagonals=True,
         save_path="/data/gpfs/projects/punim1989/biogo-hub/provinces_final/figures/img/drafts/fig_supp_distance_regressions_all_data_blocks.png",
-        skip_func_func=False
+        skip_func_func=False,
     )
     columns = {
         "genomes": "Taxonomy",

@@ -2,7 +2,7 @@
 # coding: utf-8
 
 # # Clustering analysis
-# 
+#
 # 1. Load distance data
 # 2. Keep all samples
 #     - Remove outliers (`k=8, N=10`)
@@ -38,16 +38,24 @@ import matplotlib as mpl
 from matplotlib import pyplot as plt
 
 from scipy.spatial.distance import squareform
-from scipy.cluster.hierarchy import linkage, dendrogram, cut_tree, set_link_color_palette
+from scipy.cluster.hierarchy import (
+    linkage,
+    dendrogram,
+    cut_tree,
+    set_link_color_palette,
+)
 from scipy import stats
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
 sys.path.insert(0, "/local/path/to/scripts/")
 from plotting_utils import plot_colored_markers, palettes
 
-os.environ['PATH'] = os.environ['PATH'] + ':/apps/easybuild-2022/easybuild/software/Compiler/GCC/11.3.0/texlive/20230313/bin/x86_64-linux/'
-plt.rcParams['font.family'] = 'sans-serif'
-plt.rcParams['text.usetex'] = True
+os.environ["PATH"] = (
+    os.environ["PATH"]
+    + ":/apps/easybuild-2022/easybuild/software/Compiler/GCC/11.3.0/texlive/20230313/bin/x86_64-linux/"
+)
+plt.rcParams["font.family"] = "sans-serif"
+plt.rcParams["text.usetex"] = True
 get_cmap_ix = lambda ix, cmap: mpl.colors.rgb2hex(plt.get_cmap(cmap).colors[ix])
 
 
@@ -69,7 +77,7 @@ df = df.loc[md.index, md.index]
 
 
 X = squareform(df.values)
-Z = linkage(X, method='average')
+Z = linkage(X, method="average")
 print_clusters = False
 
 # Use this to determine k
@@ -109,16 +117,21 @@ robust_provs = md[label_name].value_counts()[md[label_name].value_counts() >= N]
 def plot_dendrogram_all_samples(label_name, save=False):
     fig, ax = plt.subplots(figsize=(20, 240))
 
-    D = dendrogram(Z,
-                color_threshold=cut_value,
-                labels= "B" + md[label_name].astype(str) + "_" + md.index,
-                orientation='left',
-                leaf_font_size=8,
-                ax=ax)
+    D = dendrogram(
+        Z,
+        color_threshold=cut_value,
+        labels="B" + md[label_name].astype(str) + "_" + md.index,
+        orientation="left",
+        leaf_font_size=8,
+        ax=ax,
+    )
     _ = ax.set_xlim(1, 0.75)
 
     if save:
-        plt.savefig(save, dpi = 400 if save.endswith(".png") else "figure", bbox_inches='tight')
+        plt.savefig(
+            save, dpi=400 if save.endswith(".png") else "figure", bbox_inches="tight"
+        )
+
 
 # Supp fig. pt 1
 # plot_dendrogram_all_samples(label_name)
@@ -134,7 +147,7 @@ subtree = md_subtree.index
 
 X = df.loc[subtree, subtree]
 X = squareform(X.values)
-Z = linkage(X, method='average')
+Z = linkage(X, method="average")
 
 if print_clusters:
     for k in range(5, 21):
@@ -156,7 +169,11 @@ labels = pd.DataFrame(K, index=subtree)[0]
 # Identify labels from subtree
 labels = labels + 20
 md_subtree.loc[labels.index, label_name] = labels
-outlier_provs = md_subtree[label_name].value_counts()[md_subtree[label_name].value_counts() < N].index
+outlier_provs = (
+    md_subtree[label_name]
+    .value_counts()[md_subtree[label_name].value_counts() < N]
+    .index
+)
 outlier_samples = md_subtree[md_subtree[label_name].isin(outlier_provs)]
 md_subtree.loc[outlier_samples.index, label_name] = 99
 
@@ -198,13 +215,12 @@ plot_data[plot_data["depth"] > 0]["depth"].describe()
 # In[ ]:
 
 
-boxenplot_colors = dict(zip(plot_data[label_name].astype(int).unique(), sns.color_palette("Dark2").as_hex()))
+boxenplot_colors = dict(
+    zip(plot_data[label_name].astype(int).unique(), sns.color_palette("Dark2").as_hex())
+)
 
 
 # In[ ]:
-
-
-
 
 
 # In[ ]:
@@ -216,7 +232,17 @@ plot_data.groupby("sourmash_k_4_2132")["depth"].describe().drop("count", axis=1)
 # In[ ]:
 
 
-sns.boxenplot(data = plot_data, x=label_name, y="depth", showfliers=False, color="gray", width=0.5, palette=boxenplot_colors, hue=label_name, legend=False)
+sns.boxenplot(
+    data=plot_data,
+    x=label_name,
+    y="depth",
+    showfliers=False,
+    color="gray",
+    width=0.5,
+    palette=boxenplot_colors,
+    hue=label_name,
+    legend=False,
+)
 
 depth_inset_data = plot_data
 
@@ -237,21 +263,35 @@ plot_data["depth"]
 # TRY TRANSFORMATIONS TO MAKE IT NORMAL, E.G. BOX-COX
 
 # plot_data["depth"] = plot_data["depth"].apply(lambda x: np.log(x + 1))
-normality_results = plot_data.groupby("sourmash_k_4_2132")['depth'].apply(lambda x: stats.shapiro(x))
+normality_results = plot_data.groupby("sourmash_k_4_2132")["depth"].apply(
+    lambda x: stats.shapiro(x)
+)
 print("Shapiro-Wilk p-values for normality:\n", normality_results)
 
 # Levene's test
-levene_stat, levene_p = stats.levene(*[group["depth"].values for name, group in plot_data.groupby("sourmash_k_4_2132")])
+levene_stat, levene_p = stats.levene(
+    *[group["depth"].values for name, group in plot_data.groupby("sourmash_k_4_2132")]
+)
 print(f"Levene's test statistic: {levene_stat}")
 print(f"Levene's test p-value: {levene_p}")
 
 if all(normality_results.apply(lambda x: x[1]) > 0.05) and levene_p > 0.05:
     # ANOVA
-    anova_stat, anova_p = stats.f_oneway(*[group["depth"].values for name, group in plot_data.groupby("sourmash_k_4_2132")])
+    anova_stat, anova_p = stats.f_oneway(
+        *[
+            group["depth"].values
+            for name, group in plot_data.groupby("sourmash_k_4_2132")
+        ]
+    )
     print(f"ANOVA p-value: {anova_p}")
 else:
     # Kruskal-Wallis test
-    kruskal_stat, kruskal_p = stats.kruskal(*[group["depth"].values for name, group in plot_data.groupby("sourmash_k_4_2132")])
+    kruskal_stat, kruskal_p = stats.kruskal(
+        *[
+            group["depth"].values
+            for name, group in plot_data.groupby("sourmash_k_4_2132")
+        ]
+    )
     print(f"Kruskal-Wallis statistic: {kruskal_stat}")
     print(f"Kruskal-Wallis p-value: {kruskal_p}")
 
@@ -260,11 +300,11 @@ else:
 
 
 # Mann-Whitney U tests with Bonferroni correction
-groups = plot_data['sourmash_k_4_2132'].unique()
+groups = plot_data["sourmash_k_4_2132"].unique()
 pairwise_results = {}
 for group1, group2 in itertools.combinations(groups, 2):
-    group1_values = plot_data[plot_data['sourmash_k_4_2132'] == group1]['depth']
-    group2_values = plot_data[plot_data['sourmash_k_4_2132'] == group2]['depth']
+    group1_values = plot_data[plot_data["sourmash_k_4_2132"] == group1]["depth"]
+    group2_values = plot_data[plot_data["sourmash_k_4_2132"] == group2]["depth"]
     u_stat, p_val = stats.mannwhitneyu(group1_values, group2_values)
     pairwise_results[(group1, group2)] = p_val * len(groups)  # Bonferroni correction
 print("Pairwise Mann-Whitney U test results (Bonferroni corrected p-values):\n")
@@ -278,7 +318,9 @@ for k, v in pairwise_results.items():
 
 
 # Tukey's HSD post-hoc test
-tukey = pairwise_tukeyhsd(endog=plot_data['depth'], groups=plot_data['sourmash_k_4_2132'], alpha=0.05)
+tukey = pairwise_tukeyhsd(
+    endog=plot_data["depth"], groups=plot_data["sourmash_k_4_2132"], alpha=0.05
+)
 print(tukey)
 
 
@@ -291,7 +333,17 @@ plot_data.drop_duplicates("coords").groupby("sourmash_k_4_2132").size()
 # In[ ]:
 
 
-sns.boxenplot(data = plot_data, x="sourmash_k_4_2132", y="depth", showfliers=False, color="gray", width=0.5, palette=boxenplot_colors, hue="sourmash_k_4_2132", legend=False)
+sns.boxenplot(
+    data=plot_data,
+    x="sourmash_k_4_2132",
+    y="depth",
+    showfliers=False,
+    color="gray",
+    width=0.5,
+    palette=boxenplot_colors,
+    hue="sourmash_k_4_2132",
+    legend=False,
+)
 
 
 # In[ ]:
@@ -319,7 +371,7 @@ df = df.loc[md.index, md.index]
 
 
 X = squareform(df.values)
-Z = linkage(X, method='average')
+Z = linkage(X, method="average")
 print_clusters = False
 
 # Use this to determine k
@@ -402,18 +454,17 @@ plot_colored_markers(md_k_4, color_category=label_name, jitter=1, cmap="Dark2")
 
 def create_sequential_colormap(color_hex):
     # Convert color hex to RGB
-    r, g, b = tuple(int(color_hex[i:i+2], 16) / 255.0 for i in (0, 2, 4))
+    r, g, b = tuple(int(color_hex[i : i + 2], 16) / 255.0 for i in (0, 2, 4))
 
     # Define colormap dictionary
-    colormap_dict = {'red':   ((0.0, r, r),
-                               (1.0, 1.0, 1.0)),
-                     'green': ((0.0, g, g),
-                               (1.0, 1.0, 1.0)),
-                     'blue':  ((0.0, b, b),
-                               (1.0, 1.0, 1.0))}
+    colormap_dict = {
+        "red": ((0.0, r, r), (1.0, 1.0, 1.0)),
+        "green": ((0.0, g, g), (1.0, 1.0, 1.0)),
+        "blue": ((0.0, b, b), (1.0, 1.0, 1.0)),
+    }
 
     # Create colormap
-    colormap = mpl.colors.LinearSegmentedColormap('sequential_colormap', colormap_dict)
+    colormap = mpl.colors.LinearSegmentedColormap("sequential_colormap", colormap_dict)
 
     return colormap
 
@@ -422,17 +473,77 @@ def create_sequential_colormap(color_hex):
 
 
 palette = {
-        16:{"description": "Baltic Sea", "label": "BALT", "category": "BALT", "counts": 51, "color": get_cmap_ix(10, "tab20")},
-        11:{"description": "Pacific Equatorial Divergence/Countercurrent", "label": "PEQD", "category": "TROP", "counts": 54, "color": get_cmap_ix(8, "tab20") },
-        5:{"description": "Tropical Convergence", "label": "TGYR", "category": "TROP", "counts": 161, "color": get_cmap_ix(1, "tab20") },
-        9:{"description": "Broad Tropical", "label": "TROP", "category": "TROP", "counts": 818, "color": get_cmap_ix(0, "tab20") },
-        0:{"description": "Antarctic Polar", "label": "APLR", "category": "POLR", "counts": 30, "color": get_cmap_ix(15, "tab20") },
-        14:{"description": "Arctic Polar", "label": "BPLR", "category": "POLR", "counts": 42, "color": get_cmap_ix(14, "tab20") },
-        10:{"description": "Upwelling Areas", "label": "CTEM", "category": "TEMP", "counts": 139, "color": get_cmap_ix(4, "tab20") },
-        2:{"description": "S. Subtropical Convergence", "label": "SANT", "category": "TEMP", "counts": 43, "color": get_cmap_ix(6, "tab20") },
-        3:{"description": "North Atlantic Drift/Agulhas", "label": "NADR", "category": "TEMP", "counts": 34, "color": get_cmap_ix(7, "tab20") },
-        7:{"description": "Mediterranean", "label": "MEDI", "category": "TEMP", "counts": 82, "color": get_cmap_ix(6, "tab20") }
-    }
+    16: {
+        "description": "Baltic Sea",
+        "label": "BALT",
+        "category": "BALT",
+        "counts": 51,
+        "color": get_cmap_ix(10, "tab20"),
+    },
+    11: {
+        "description": "Pacific Equatorial Divergence/Countercurrent",
+        "label": "PEQD",
+        "category": "TROP",
+        "counts": 54,
+        "color": get_cmap_ix(8, "tab20"),
+    },
+    5: {
+        "description": "Tropical Convergence",
+        "label": "TGYR",
+        "category": "TROP",
+        "counts": 161,
+        "color": get_cmap_ix(1, "tab20"),
+    },
+    9: {
+        "description": "Broad Tropical",
+        "label": "TROP",
+        "category": "TROP",
+        "counts": 818,
+        "color": get_cmap_ix(0, "tab20"),
+    },
+    0: {
+        "description": "Antarctic Polar",
+        "label": "APLR",
+        "category": "POLR",
+        "counts": 30,
+        "color": get_cmap_ix(15, "tab20"),
+    },
+    14: {
+        "description": "Arctic Polar",
+        "label": "BPLR",
+        "category": "POLR",
+        "counts": 42,
+        "color": get_cmap_ix(14, "tab20"),
+    },
+    10: {
+        "description": "Upwelling Areas",
+        "label": "CTEM",
+        "category": "TEMP",
+        "counts": 139,
+        "color": get_cmap_ix(4, "tab20"),
+    },
+    2: {
+        "description": "S. Subtropical Convergence",
+        "label": "SANT",
+        "category": "TEMP",
+        "counts": 43,
+        "color": get_cmap_ix(6, "tab20"),
+    },
+    3: {
+        "description": "North Atlantic Drift/Agulhas",
+        "label": "NADR",
+        "category": "TEMP",
+        "counts": 34,
+        "color": get_cmap_ix(7, "tab20"),
+    },
+    7: {
+        "description": "Mediterranean",
+        "label": "MEDI",
+        "category": "TEMP",
+        "counts": 82,
+        "color": get_cmap_ix(6, "tab20"),
+    },
+}
 
 
 # In[ ]:
@@ -455,7 +566,3 @@ palette = {
 
 
 # In[ ]:
-
-
-
-
