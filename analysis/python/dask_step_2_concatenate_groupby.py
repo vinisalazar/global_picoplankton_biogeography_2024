@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+Dask code to concatenate individual tables generated in Step 1.
+"""
+
 import argparse
 import pandas as pd
 from pathlib import Path

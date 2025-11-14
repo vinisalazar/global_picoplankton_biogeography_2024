@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+Generate distance matrices from all blocks of data.
+"""
+
 import sys
 import argparse
 import warnings

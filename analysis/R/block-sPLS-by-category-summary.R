@@ -1,3 +1,7 @@
+"""
+R code to run block-sPLS by province category (for polar, tropical, and temperature signatures figures).
+"""
+
 library(dplyr)
 library(stringr)
 library(mixOmics)

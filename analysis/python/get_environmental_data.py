@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+
+"""
+Download data from Bio-ORACLE ERDDAP.
+"""
+
 import argparse
 import logging
 from pathlib import Path

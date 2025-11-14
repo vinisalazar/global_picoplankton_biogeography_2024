@@ -1,3 +1,8 @@
+"""
+Final code for sPLS analysis (environmental, functional, taxonomic).
+"""
+
+
 library(dplyr)
 library(stringr)
 library(mixOmics)

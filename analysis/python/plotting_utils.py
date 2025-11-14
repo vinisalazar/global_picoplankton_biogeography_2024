@@ -1,3 +1,8 @@
+"""
+General utilities for plotting.
+"""
+
+
 import re
 
 import cartopy.crs as ccrs

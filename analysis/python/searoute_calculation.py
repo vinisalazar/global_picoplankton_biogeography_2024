@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+Calculate searoute distance between sampling stations.
+"""
+
 import sys
 
 from functools import lru_cache

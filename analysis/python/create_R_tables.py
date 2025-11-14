@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+Generate tables that are R-friendly.
+"""
+
 import sys
 import json
 import pandas as pd

@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+
+"""
+Dask code to format concatenated tables generated in Step 2.
+"""
+
 import re
 import json
 import argparse

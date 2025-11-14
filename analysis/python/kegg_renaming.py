@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+
+"""
+Rename KEGG features (remove punctuation etc.). This script is deprecated.
+"""
+
 from pathlib import Path
 from glob import glob
 

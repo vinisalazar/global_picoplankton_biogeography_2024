@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+
+"""
+Dask code for mass processing of counts tables (taxonomy).
+"""
+
+
 import argparse
 import dask
 from dask_jobqueue import SLURMCluster

@@ -1,3 +1,8 @@
+"""
+Preprocess data with R.
+"""
+
+
 # Load required libraries
 source("/local/path/to/scripts/utils.R")
 print_with_timestamp("Starting script 'preprocess_data.R'. Loading required libraries.")
